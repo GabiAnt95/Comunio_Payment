@@ -3,6 +3,7 @@ import pandas as pd
 import time
 
 import requests as req
+from bs4 import BeautifulSoup as bs
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
