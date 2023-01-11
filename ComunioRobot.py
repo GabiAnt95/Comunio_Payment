@@ -1,24 +1,25 @@
 import streamlit as st
+import pandas as pd
+import time
+
+import requests as req
+from bs4 import BeautifulSoup as bs
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+# CHROME
+from webdriver_manager.chrome import ChromeDriverManager  
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains #Double_click
 
 st.set_page_config(page_title='Comunio Primas', page_icon="⚽", layout="wide", initial_sidebar_state="auto")
 
 def calculo_primas(user, prima_por_punto, prima_once):
-    import pandas as pd
-    import time
-    import requests as req
-    from bs4 import BeautifulSoup as bs
-
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-
-    # CHROME
-    from webdriver_manager.chrome import ChromeDriverManager  
-
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.common.keys import Keys
-    from selenium.webdriver.common.action_chains import ActionChains #Double_click
 
     opciones=Options()
     # Se pueden añadir muchas más, como entrar en modo incógnito, tener un adblock, etc --> Buscar en google.
@@ -61,25 +62,7 @@ def calculo_primas(user, prima_por_punto, prima_once):
     
     return nombres, dinero
 
-def comunio(user, password, prima_por_punto, prima_once, mensaje): 
-    import pandas as pd
-    import time
-
-    import requests as req
-    from bs4 import BeautifulSoup as bs
-
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-
-    # CHROME
-    from webdriver_manager.chrome import ChromeDriverManager  
-
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.common.keys import Keys
-    from selenium.webdriver.common.action_chains import ActionChains #Double_click
-
+def comunio(user, password, prima_por_punto, prima_once, mensaje, tipo_prima): 
     opciones=Options()
     # Se pueden añadir muchas más, como entrar en modo incógnito, tener un adblock, etc --> Buscar en google.
     opciones.add_experimental_option('excludeSwitches', ['enable-automation'])
@@ -93,6 +76,9 @@ def comunio(user, password, prima_por_punto, prima_once, mensaje):
     # Saco los valores de nonbres y dinero de la funcion de comuniate
     nombres_dinero = calculo_primas(user, prima_por_punto, prima_once)
     nombres, dinero = nombres_dinero[0], nombres_dinero[1]
+    
+    if tipo_prima == 'Penalizar':
+        dinero = [-e for e in dinero]
     
     url = 'https://www.comunio.es/setup/clubs/rewardsAndDisciplinary'
     driver=webdriver.Chrome(PATH, options=opciones)
@@ -140,6 +126,7 @@ st.header("Comunio Payment")
 
 user = st.text_input("User Comunio: ")
 password = st.text_input("Password Comunio", type  = 'password')
+tipo_prima = st.selectbox("Bonificar o Castigar: ", ['Bonificar', 'Penalizar'])
 prima_por_punto = st.text_input("Prima por punto hecho: ", '30000')
 prima_once = st.text_input("Prima por jugador en el once ideal: ", '100000')
 mensaje = st.text_input("Mensaje pago: ", 'Paid')
@@ -147,7 +134,7 @@ mensaje = st.text_input("Mensaje pago: ", 'Paid')
 pago = st.button("Pagar 💸")
 
 if pago:
-    comunio(user, password, prima_por_punto, prima_once, mensaje)
+    comunio(user, password, prima_por_punto, prima_once, mensaje, tipo_prima)
 
 
     
